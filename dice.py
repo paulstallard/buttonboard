@@ -6,10 +6,10 @@ import sys
 
 # Attempt to simulate a rolling dice
 def roll_dice(board, number):
-    sleep = .05
+    sleep = 0.05
     for x in range(1, 8):
         board.show_dice(random.randint(1, 6))
-        time.sleep(sleep*x)
+        time.sleep(sleep * x)
     board.show_dice(number)
 
 

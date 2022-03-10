@@ -45,6 +45,7 @@ class ButtonBoard:
 
     def xwhack(self, number):
         import random
+
         time.sleep(0.2 * random.random())
 
     def whack(self, number):
@@ -80,5 +81,5 @@ class ButtonBoard:
 
     def wait_any_button(self):
         a = self.bus.read_byte_data(self.DEVICE, self.GPIOB)
-        while( a == 0xFF ) :
+        while a == 0xFF:
             a = self.bus.read_byte_data(self.DEVICE, self.GPIOB)
