@@ -29,4 +29,10 @@ Exit with `Ctrl-C`
 
 ### Simon-style "follow-me" game
 
-To be developed
+Hit any button to start.
+Try to copy the pattern for as long as you can...
+
+```
+python simon.py
+```
+Exit with `Ctrl-C`
