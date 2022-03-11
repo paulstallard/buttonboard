@@ -6,7 +6,7 @@ import sys
 
 # Attempt to simulate a rolling dice
 def roll_dice(board, number):
-    others = list(range(1,7))
+    others = list(range(1, 7))
     others.remove(number)
     random.shuffle(others)
     for roll in others:
