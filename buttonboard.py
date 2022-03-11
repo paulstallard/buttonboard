@@ -14,23 +14,14 @@ class ButtonBoard:
     GPIOB = 0x13
     GPPUB = 0x0D
 
-    BUT_TR = 0x40
-    BUT_MR = 0x20
-    BUT_BR = 0x10
-    BUT_BL = 0x01
-    BUT_ML = 0x02
-    BUT_TL = 0x04
-    BUT_M = 0x08
-    BUTS = [BUT_TR, BUT_MR, BUT_BR, BUT_M, BUT_BL, BUT_ML, BUT_TL]
-
-    LIGHT_BL = 1
-    LIGHT_ML = 2
-    LIGHT_TL = 4
-    LIGHT_M = 8
-    LIGHT_BR = 16
-    LIGHT_MR = 32
-    LIGHT_TR = 64
-    LIGHTS = [LIGHT_TR, LIGHT_MR, LIGHT_BR, LIGHT_M, LIGHT_BL, LIGHT_ML, LIGHT_TL]
+    _BL = 0x01
+    _ML = 0x02
+    _TL = 0x04
+    _BR = 0x10
+    _MR = 0x20
+    _TR = 0x40
+    _M = 0x08
+    masks = [_TR, _MR, _BR, _M, _BL, _ML, _TL]
 
     def __init__(self):
         self.bus = smbus.SMBus(1)
@@ -40,46 +31,79 @@ class ButtonBoard:
         self.board_clear()
         atexit.register(self.board_clear)
 
+    def _get_switches_register(self):
+        return self.bus.read_byte_data(self.DEVICE, self.GPIOB)
+
+    def _get_lights_register(self):
+        return self.bus.read_byte_data(self.DEVICE, self.OLATA)
+
+    def _put_lights_register(self, v):
+        self.bus.write_byte_data(self.DEVICE, self.OLATA, v)
+
+    def get_buttons(self):
+        inp = self._get_switches_register()
+        on = []
+        for n, m in enumerate(self.masks):
+            if not inp & m:
+                on.append(n)
+        return on
+
     def board_clear(self):
-        self.bus.write_byte_data(self.DEVICE, self.OLATA, 0)
+        self._put_lights_register(0)
 
     def xwhack(self, number):
         import random
 
         time.sleep(0.2 * random.random())
 
+    def light_on(self, number):
+        on = self._get_lights_register()
+        self._put_lights_register(on | self.masks[number])
+
     def whack(self, number):
-        self.bus.write_byte_data(self.DEVICE, self.OLATA, self.LIGHTS[number])
-        a = self.bus.read_byte_data(self.DEVICE, self.GPIOB)
-        while a + self.BUTS[number] != 0xFF:
-            a = self.bus.read_byte_data(self.DEVICE, self.GPIOB)
+        self.light_on(number)
+        buttons = self.get_buttons()
+        while number not in buttons:
+            buttons = self.get_buttons()
         self.board_clear()
 
     def flash(self, delay=0.3):
-        self.bus.write_byte_data(self.DEVICE, self.OLATA, 0xFF)
-        time.sleep(delay)
-        self.board_clear()
-        time.sleep(delay)
-        self.bus.write_byte_data(self.DEVICE, self.OLATA, 0xFF)
-        time.sleep(delay)
-        self.board_clear()
+        for _ in range(2):
+            self._put_lights_register(0xFF)
+            time.sleep(delay)
+            self.board_clear()
+            time.sleep(delay)
 
     def show_dice(self, number):
         if number == 1:
-            lights = self.LIGHT_M
+            lights = self._M
         elif number == 2:
-            lights = self.LIGHT_TL | self.LIGHT_BR
+            lights = self._TL | self._BR
         elif number == 3:
-            lights = self.LIGHT_TL | self.LIGHT_BR | self.LIGHT_M
+            lights = self._TL | self._BR | self._M
         elif number == 4:
-            lights = self.LIGHT_BL | self.LIGHT_TL | self.LIGHT_BR | self.LIGHT_TR
+            lights = self._BL | self._TL | self._BR | self._TR
         elif number == 5:
-            lights = self.LIGHT_BL | self.LIGHT_TL | self.LIGHT_BR | self.LIGHT_TR | self.LIGHT_M
+            lights = self._BL | self._TL | self._BR | self._TR | self._M
         else:
-            lights = self.LIGHT_BL | self.LIGHT_TL | self.LIGHT_BR | self.LIGHT_TR | self.LIGHT_ML | self.LIGHT_MR
-        self.bus.write_byte_data(self.DEVICE, self.OLATA, lights)
+            lights = self._BL | self._TL | self._BR | self._TR | self._ML | self._MR
+        self._put_lights_register(lights)
 
     def wait_any_button(self):
-        a = self.bus.read_byte_data(self.DEVICE, self.GPIOB)
-        while a == 0xFF:
-            a = self.bus.read_byte_data(self.DEVICE, self.GPIOB)
+        buttons = self.get_buttons()
+        while not buttons:
+            buttons = self.get_buttons()
+
+    def press_release(self, number):
+        while True:
+            buttons = self.get_buttons()
+            if buttons:
+                if buttons == [number]:
+                    break
+                print(f"Should have hit {number}, but {buttons}")
+                return False
+        self.light_on(number)
+        while buttons:
+            buttons = self.get_buttons()
+        self.board_clear()
+        return True
