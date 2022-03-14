@@ -34,6 +34,15 @@ class ButtonBoard:
     def _get_switches_register(self):
         return self.bus.read_byte_data(self.DEVICE, self.GPIOB)
 
+    def _get_debounced_switches_register(self):
+        switches = self._get_switches_register()
+        while True:
+            time.sleep(0.01)
+            now_switches = self._get_switches_register()
+            if switches == now_switches:
+                return switches
+            switches = now_switches
+
     def _get_lights_register(self):
         return self.bus.read_byte_data(self.DEVICE, self.OLATA)
 
@@ -41,7 +50,7 @@ class ButtonBoard:
         self.bus.write_byte_data(self.DEVICE, self.OLATA, v)
 
     def get_buttons(self):
-        inp = self._get_switches_register()
+        inp = self._get_debounced_switches_register()
         on = []
         for n, m in enumerate(self.masks):
             if not inp & m:
