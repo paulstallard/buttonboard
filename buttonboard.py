@@ -90,9 +90,14 @@ class ButtonBoard:
         self._put_lights_register(lights)
 
     def wait_any_button(self):
-        buttons = self.get_buttons()
-        while not buttons:
-            buttons = self.get_buttons()
+        while True:
+            if self.get_buttons():
+                return
+
+    def wait_no_buttons(self):
+        while True:
+            if not self.get_buttons():
+                return
 
     def press_release(self, number):
         while True:
@@ -103,7 +108,6 @@ class ButtonBoard:
                 print(f"Should have hit {number}, but {buttons}")
                 return False
         self.light_on(number)
-        while buttons:
-            buttons = self.get_buttons()
+        self.wait_no_buttons()
         self.board_clear()
         return True

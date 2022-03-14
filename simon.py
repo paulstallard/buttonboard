@@ -41,6 +41,7 @@ def simon_game(board):
         show_sequence(board, sequence)
         if not capture_sequence(board, sequence):
             break
+        time.sleep(.5)
     score = len(sequence) - 1
     say(f"Your score was {score}")
     return score
