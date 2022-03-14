@@ -35,8 +35,9 @@ def capture_sequence(board, seq):
 def simon_game(board):
     say("Hit any key to start")
     board.wait_any_button()
+    time.sleep(1)
     sequence = []
-    for _ in range(10):
+    while True:
         sequence.append(random.randint(1, 6))
         show_sequence(board, sequence)
         if not capture_sequence(board, sequence):
