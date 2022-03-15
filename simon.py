@@ -33,26 +33,25 @@ def capture_sequence(board, seq):
 
 
 def simon_game(board):
-    say("Hit any key to start")
-    board.wait_any_button()
     time.sleep(1)
     sequence = []
     while True:
-        sequence.append(random.randint(1, 6))
+        sequence.append(random.randint(0, 6))
         show_sequence(board, sequence)
         if not capture_sequence(board, sequence):
             break
         time.sleep(.5)
-    score = len(sequence) - 1
-    say(f"Your score was {score}")
-    return score
+    return len(sequence) - 1
 
 
 def main():
     board = buttonboard.ButtonBoard()
     highscore = 0
     while True:
+        say("Hit any key to start")
+        board.wait_any_button()
         score = simon_game(board)
+        say(f"Your score was {score}")
         if score > highscore:
             say("Congratulations, that's a new high score")
             highscore = score
