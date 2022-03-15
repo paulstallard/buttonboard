@@ -23,6 +23,8 @@ class ButtonBoard:
     _M = 0x08
     masks = [_TR, _MR, _BR, _M, _BL, _ML, _TL]
 
+    n_buttons = 7
+
     def __init__(self):
         self.bus = smbus.SMBus(1)
         self.bus.write_byte_data(self.DEVICE, self.IODIRA, 0x00)
@@ -66,10 +68,12 @@ class ButtonBoard:
         time.sleep(0.2 * random.random())
 
     def light_on(self, number):
+        assert number >= 0 and number < self.n_buttons
         on = self._get_lights_register()
         self._put_lights_register(on | self.masks[number])
 
     def whack(self, number):
+        assert number >= 0 and number < self.n_buttons
         self.light_on(number)
         buttons = self.get_buttons()
         while number not in buttons:
@@ -84,6 +88,7 @@ class ButtonBoard:
             time.sleep(delay)
 
     def show_dice(self, number):
+        assert number >= 1 and number <= 6
         if number == 1:
             lights = self._M
         elif number == 2:
@@ -109,6 +114,7 @@ class ButtonBoard:
                 return
 
     def press_release(self, number):
+        assert number >= 0 and number < self.n_buttons
         while True:
             buttons = self.get_buttons()
             if buttons:
