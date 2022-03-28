@@ -14,14 +14,14 @@ class ButtonBoard:
     GPIOB = 0x13
     GPPUB = 0x0D
 
-    _BL = 0x01
+    _TL = 0x01
     _ML = 0x02
-    _TL = 0x04
-    _BR = 0x10
-    _MR = 0x20
-    _TR = 0x40
+    _BL = 0x04
     _M = 0x08
-    masks = [_TR, _MR, _BR, _M, _BL, _ML, _TL]
+    _TR = 0x10
+    _MR = 0x20
+    _BR = 0x40
+    masks = [_TR, _MR, _BR, _M, _TL, _ML, _BL]
 
     n_buttons = 7
 
@@ -120,7 +120,7 @@ class ButtonBoard:
             if buttons:
                 if buttons == [number]:
                     break
-                print(f"Should have hit {number}, but {buttons}")
+                # Hit the wrong button
                 return False
         self.light_on(number)
         self.wait_no_buttons()
