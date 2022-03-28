@@ -1,17 +1,7 @@
 import buttonboard
-import subprocess
+from say import say
 import time
 import random
-
-
-def say_festival(string):
-    print(string)
-    subprocess.run(["festival", "--tts"], input=string, text=True)
-
-
-def say_espeak(string):
-    print(string)
-    subprocess.run(["espeak", "-ven-us+croak", string], stderr=subprocess.DEVNULL)
 
 
 def random_different(last_value, n_buttons):
@@ -19,23 +9,26 @@ def random_different(last_value, n_buttons):
     return (last_value + 1 + random.randint(0, n_buttons - 2)) % n_buttons
 
 
+def whackamole(board):
+    say("Hit the first mole to start")
+    button = 3
+    board.whack(button)
+    start_time = time.perf_counter()
+    for _ in range(20):
+        button = random_different(button, 7)
+        board.whack(button)
+    elapsed_time = time.perf_counter() - start_time
+    board.flash()
+    return elapsed_time
+
+
 def main():
     highscore = -1.00
 
     board = buttonboard.ButtonBoard()
-    say = say_espeak
 
     while True:
-        say("Hit the first mole to start")
-        button = 3
-        board.whack(button)
-        start_time = time.perf_counter()
-        for _ in range(20):
-            button = random_different(button, 7)
-            board.whack(button)
-
-        elapsed_time = time.perf_counter() - start_time
-        board.flash()
+        elapsed_time = whackamole(board)
 
         say(f"{elapsed_time:.2f} seconds,,,")
 
