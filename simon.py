@@ -1,19 +1,14 @@
 import buttonboard
 import random
+from say import say
 import subprocess
 import time
-
-
-def say(string):
-    print(string)
-    subprocess.run(["espeak", "-ven-us+croak", string], stderr=subprocess.DEVNULL)
 
 
 def show_sequence(board, seq):
     delay = 0.3
     for button in seq:
         board.light_on(button)
-        print(f"{button}")
         time.sleep(delay)
         board.board_clear()
         time.sleep(delay)
@@ -40,7 +35,7 @@ def simon_game(board):
         show_sequence(board, sequence)
         if not capture_sequence(board, sequence):
             break
-        time.sleep(.5)
+        time.sleep(0.5)
     return len(sequence) - 1
 
 
