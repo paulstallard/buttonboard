@@ -14,14 +14,14 @@ class ButtonBoard:
     GPIOB = 0x13
     GPPUB = 0x0D
 
-    _TL = 0x01
-    _ML = 0x02
-    _BL = 0x04
+    _TR = 0x01
+    _MR = 0x02
+    _BR = 0x04
     _M = 0x08
-    _TR = 0x10
-    _MR = 0x20
-    _BR = 0x40
-    masks = [_TR, _MR, _BR, _M, _TL, _ML, _BL]
+    _TL = 0x10
+    _ML = 0x20
+    _BL = 0x40
+    masks = [_TL, _ML, _BL, _M, _TR, _MR, _BR]
 
     n_buttons = 7
 
