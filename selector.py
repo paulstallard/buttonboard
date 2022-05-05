@@ -8,16 +8,29 @@ import whackamole
 class Game:
     def __init__(self, title):
         self.title = title
-        self.high_score = None
+        self.hs_filename = f".highscore_{title.lower()}"
+        self.high_score = self.init_high_score()
         self.last_score = None
+
+    def init_high_score(self):
+        try:
+            with open(self.hs_filename) as f:
+                return float(f.read())
+        except (FileNotFoundError, ValueError):
+            return None
+
+    def set_high_score(self, hs):
+        self.high_score = hs
+        with open(self.hs_filename, "w") as f:
+            f.write(f"{hs}\n")
 
     @property
     def last_str(self):
-        return f"Last score: {self.last_score or '---'}"
+        return f"Last: {self.display_last}"
 
     @property
     def best_str(self):
-        return f"High score: {self.high_score or '---'}"
+        return f"Best: {self.display_best}"
 
 
 class SimonGame(Game):
@@ -30,9 +43,17 @@ class SimonGame(Game):
         say(f"Your score was {score}")
         if not self.high_score or score > self.high_score:
             say("Congratulations, that's a new high score")
-            self.high_score = score
+            self.set_high_score(score)
         else:
             say(f"The high score remains at {self.high_score}")
+
+    @property
+    def display_last(self):
+        return f"{self.last_score:.0f}" if self.last_score else "---"
+
+    @property
+    def display_best(self):
+        return f"{self.high_score:.0f}" if self.high_score else "---"
 
 
 class WhackamoleGame(Game):
@@ -47,26 +68,24 @@ class WhackamoleGame(Game):
 
         if not self.high_score:
             say("you have set the first highscore")
-            self.high_score = elapsed_time
+            self.set_high_score(elapsed_time)
         else:
             diff_to_hs = round(elapsed_time - self.high_score, 2)
             if diff_to_hs > 0:
                 say(f"Bad luck, you missed the high score by {diff_to_hs:.2f} seconds")
             elif diff_to_hs < 0:
                 say(f"Well done, you beat the high score by {-diff_to_hs:.2f} seconds")
-                self.high_score = elapsed_time
+                self.set_high_score(elapsed_time)
             else:
                 say("you have equaled the high score")
 
     @property
-    def last_str(self):
-        s = f"{self.last_score:.2f} seconds" if self.last_score else "---"
-        return f"Last time: {s}"
+    def display_last(self):
+        return f"{self.last_score:.2f} seconds" if self.last_score else "---"
 
     @property
-    def best_str(self):
-        s = f"{self.high_score:.2f} seconds" if self.high_score else "---"
-        return f"Best time: {s}"
+    def display_best(self):
+        return f"{self.high_score:.2f} seconds" if self.high_score else "---"
 
 
 def show_stuff(win, title, last_str, best_str, col):
@@ -82,7 +101,7 @@ def show_stuff(win, title, last_str, best_str, col):
 
 def show_screen(stdscr, games):
     curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
-    curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
+    curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
 
     curses.curs_set(False)
     y, x = stdscr.getmaxyx()
