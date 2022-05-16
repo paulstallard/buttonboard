@@ -17,7 +17,7 @@ def show_sequence(board, seq):
 def capture_sequence(board, seq):
     for button in seq:
         if not board.press_release(button):
-            say("ooops, bad luck")
+            say("oops, bad luck")
             for _ in range(5):
                 board.light_on(button)
                 time.sleep(0.1)
