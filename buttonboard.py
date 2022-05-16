@@ -62,11 +62,6 @@ class ButtonBoard:
     def board_clear(self):
         self._put_lights_register(0)
 
-    def xwhack(self, number):
-        import random
-
-        time.sleep(0.2 * random.random())
-
     def light_on(self, number):
         assert number >= 0 and number < self.n_buttons
         on = self._get_lights_register()
@@ -76,7 +71,7 @@ class ButtonBoard:
         assert number >= 0 and number < self.n_buttons
         self.light_on(number)
         buttons = self.get_buttons()
-        while number not in buttons:
+        while len(buttons) != 1 or buttons[0] != number:
             buttons = self.get_buttons()
         self.board_clear()
 
