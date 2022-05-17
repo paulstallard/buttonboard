@@ -1,6 +1,6 @@
 # ButtonBoard
 
-Software created for a home-build "button board".  The board consists of 7 arcade-style buttons, each containing a light.
+Software created for a home-built "button board".  The board consists of 7 arcade-style buttons, each containing a light.
 The board was build to be controlled with a Raspberry Pi.
 
 ![buttonboard](img/board.jpg)
