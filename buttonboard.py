@@ -52,12 +52,8 @@ class ButtonBoard:
         self.bus.write_byte_data(self.DEVICE, self.OLATA, v)
 
     def get_buttons(self):
-        inp = self._get_debounced_switches_register()
-        on = []
-        for n, m in enumerate(self.masks):
-            if not inp & m:
-                on.append(n)
-        return on
+        inp = ~self._get_debounced_switches_register()
+        return [n for n, m in enumerate(self.masks) if inp & m]
 
     def board_clear(self):
         self._put_lights_register(0)
@@ -70,9 +66,8 @@ class ButtonBoard:
     def whack(self, number):
         assert number >= 0 and number < self.n_buttons
         self.light_on(number)
-        buttons = self.get_buttons()
-        while len(buttons) != 1 or buttons[0] != number:
-            buttons = self.get_buttons()
+        while self.get_buttons() != [number]:
+            pass
         self.board_clear()
 
     def flash(self, delay=0.3):
@@ -99,14 +94,12 @@ class ButtonBoard:
         self._put_lights_register(lights)
 
     def wait_any_button(self):
-        while True:
-            if self.get_buttons():
-                return
+        while not self.get_buttons():
+            pass
 
     def wait_no_buttons(self):
-        while True:
-            if not self.get_buttons():
-                return
+        while self.get_buttons():
+            pass
 
     def press_release(self, number):
         assert number >= 0 and number < self.n_buttons
